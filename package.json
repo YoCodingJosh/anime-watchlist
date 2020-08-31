@@ -1,0 +1,19 @@
+{
+    "name": "codingjosh-anime-watchlist",
+    "version": "0.1.0",
+    "author": {
+        "name": "CodingJosh",
+        "email": "joshk@digitalmagic.io",
+        "url": "http://codingjosh.com"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/YoCodingJosh/anime-watchlist"
+    },
+    "license": "MIT",
+    "main": "index.js",
+    "dependencies": {
+        "express": "4.17.1",
+        "axios": "0.20.0"
+    }
+}
