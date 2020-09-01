@@ -11,9 +11,16 @@
         "url": "https://github.com/YoCodingJosh/anime-watchlist"
     },
     "license": "MIT",
-    "main": "index.js",
+    "scripts": {
+      "start": "NODE_ENV=development node ./devServer.js",
+      "run-server": "NODE_ENV=production node ./server.js",
+      "build": "NODE_ENV=production webpack --mode production --config webpack.config.js"
+    },
     "dependencies": {
         "express": "4.17.1",
         "axios": "0.20.0"
+    },
+    "devDependencies": {
+      "nodemon": "2.0.4"
     }
 }
