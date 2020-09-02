@@ -1,6 +1,5 @@
-
-# Created by https://www.toptal.com/developers/gitignore/api/windows,macos,node,vue
-# Edit at https://www.toptal.com/developers/gitignore?templates=windows,macos,node,vue
+# Created by https://www.toptal.com/developers/gitignore/api/node,windows,macos
+# Edit at https://www.toptal.com/developers/gitignore?templates=node,windows,macos
 
 ### macOS ###
 # General
@@ -139,17 +138,6 @@ dist
 # Stores VSCode versions used for testing VSCode extensions
 .vscode-test
 
-### Vue ###
-# gitignore template for Vue.js projects
-#
-# Recommended template: Node.gitignore
-
-# TODO: where does this rule come from?
-docs/_book
-
-# TODO: where does this rule come from?
-test/
-
 ### Windows ###
 # Windows thumbnail cache files
 Thumbs.db
@@ -176,4 +164,42 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-# End of https://www.toptal.com/developers/gitignore/api/windows,macos,node,vue
+# End of https://www.toptal.com/developers/gitignore/api/node,windows,macos
+
+# Don't want to check private credentials into git lmao
+private/*
+!private/.gitkeep
+
+# Next.js stuff
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# local env files
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# vercel
+.vercel

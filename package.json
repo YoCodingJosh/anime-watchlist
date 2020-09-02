@@ -1,26 +1,20 @@
 {
-    "name": "codingjosh-anime-watchlist",
-    "version": "0.1.0",
-    "author": {
-        "name": "CodingJosh",
-        "email": "joshk@digitalmagic.io",
-        "url": "http://codingjosh.com"
-    },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/YoCodingJosh/anime-watchlist"
-    },
-    "license": "MIT",
-    "scripts": {
-        "start": "NODE_ENV=development node ./dev-server.js",
-        "run-server": "NODE_ENV=production node ./server.js",
-        "build": "NODE_ENV=production webpack --mode production --config webpack.config.js"
-    },
-    "dependencies": {
-        "express": "4.17.1",
-        "axios": "0.20.0"
-    },
-    "devDependencies": {
-        "nodemon": "2.0.4"
-    }
+  "name": "codingjosh-anime-watchlist",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "author": {
+    "name": "CodingJosh",
+    "email": "joshk@digitalmagic.io"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "9.5.3",
+    "react": "16.13.1",
+    "react-dom": "16.13.1"
+  }
 }
