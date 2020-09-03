@@ -167,8 +167,8 @@ $RECYCLE.BIN/
 # End of https://www.toptal.com/developers/gitignore/api/node,windows,macos
 
 # Don't want to check private credentials into git lmao
-private/*
-!private/.gitkeep
+etl_server/private/*
+!etl_server/private/.gitkeep
 
 # Next.js stuff
 # dependencies
