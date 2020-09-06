@@ -1,0 +1,9 @@
+Put your Google Sheet details in this directory in a file called drive.json
+
+The format is: 
+
+{
+    "sheet": "whatever is inbetween https://docs.google.com/spreadsheets/d/ and /edit -- and please ensure that the document is public (authentication is a pita)",
+    "queue_tab": Integer ordinal for the queue tab (this is a 1-based index),
+    "watched_tab": Integer ordinal for the watched tab (this is also a 1-based index)
+}
