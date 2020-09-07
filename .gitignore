@@ -170,6 +170,10 @@ $RECYCLE.BIN/
 processor/private/*
 !processor/private/.gitkeep
 
+# Don't want to check the raw generated data into git either lmao
+processor/data/*
+!processor/data/.gitkeep
+
 # Next.js stuff
 # dependencies
 /node_modules

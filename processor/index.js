@@ -1,6 +1,8 @@
 const fs = require('fs');
 const drive = require("drive-db");
 
+const etl = require('./etl');
+
 let sheetsInfo = {};
 
 async function loadSheetInfo() {
@@ -53,6 +55,15 @@ async function main() {
   if (!connectionResult) {
     return;
   }
+
+  etl.start(sheetsInfo);
 }
 
-main();
+// if running through node index.js - run the main method.
+if (require.main === module) {
+  main();
+}
+
+module.exports = {
+  startEtl: main
+};
