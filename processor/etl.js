@@ -1,13 +1,26 @@
 const fs = require('fs');
-const drive = require("drive-db");
+const drive = require('drive-db');
 
 const jikan = require('./jikan');
 
 const util = require('./util');
 
+const axios = require('axios').default;
+
 let sheetMetadata = {}
 
-const MAX_ATTEMPTS = 3;
+const MAX_ATTEMPTS = 5;
+
+// this function isn't jikan-specific so i'll put it here.
+// creates a file called ${malId}.jpg in ./data/images
+async function downloadAnimeArt(url, malId) {
+  axios({ url, responseType: 'stream' }).then(
+    response =>
+      new Promise((resolve, reject) => {
+        response.data.pipe(fs.createWriteStream(`./data/images/${malId}.jpg`)).on('finish', () => resolve()).on('error', e => reject(e));
+      }),
+  );
+}
 
 async function mangleSheetsData() {
   console.log("Starting processing... (this whole process may take a while due to rate limiting)");
@@ -38,7 +51,7 @@ async function mangleSheetsData() {
   var numPending = 1;
   var totalProcessed = 0;
 
-  console.log(`[Stage 3/5] This stage will take around ${Math.ceil((queueElements.length * 4000 + ((Math.random() * 250) * Math.random() * 10) + 1) / 1000 / 60)} minutes`);
+  console.log(`[Stage 3/5] This stage will take at least ${Math.ceil((queueElements.length * 4000 + ((Math.random() * 250) * Math.random() * 10) + 1) / 1000 / 60 * 2)} minutes`);
   for (var i = 0; i < queueElements.length; i++) {
     let element = queueElements[i];
 
@@ -70,16 +83,49 @@ async function mangleSheetsData() {
     }
 
     element[1].malData = {};
+    element[1].mal_additional_details = {};
 
     // Let's get to work. ^-^
     // We make a request to Jikan for the anime title (I tried to make sure all my titles were hepburnized for easier search)
     var numAttempts = 0;
-    while (numAttempts < MAX_ATTEMPTS) {
+    while (numAttempts <= MAX_ATTEMPTS) {
       // determine if we have an axios error
       if (element[1].malData !== undefined && element[1].malData.response !== undefined) {
-        console.log(`there was an error retrieving anime info, retrying again (attempt ${numAttempts + 1}/${MAX_ATTEMPTS + 1})...`);
+        console.log(`there was an error retrieving anime info, retrying again (attempt ${numAttempts}/${MAX_ATTEMPTS})...`);
       } else if (element[1].malData == undefined || !(Object.keys(element[1].malData).length === 0 && element[1].malData.constructor === Object)) {
-        // null is fine, if we can't find the anime, but undefined means we didn't get data back, and that means we need to continue on...
+        // null is fine, if we can't find the anime, but undefined means we didn't get data back, and that means we need to continue on.
+
+        // Let's go ahead and download the image since we know we have the proper data to do so...
+        await downloadAnimeArt(element[1].malData.image_url, element[1].malData.mal_id);
+
+        // and let's go ahead and also download the rest of the metadata for the anime.
+        var numAttempts2 = 0;
+
+        while (numAttempts2 <= MAX_ATTEMPTS) {
+          // determine if we have an axios error
+          if (element[1].mal_additional_details !== undefined && element[1].mal_additional_details.response !== undefined) {
+            console.log(`there was an error retrieving anime info, retrying again (attempt ${numAttempts}/${MAX_ATTEMPTS})...`);
+          } else if (element[1].mal_additional_details == undefined || !(Object.keys(element[1].mal_additional_details).length === 0 && element[1].mal_additional_details.constructor === Object)) {
+            break;
+          }
+
+          // just wait a bit longer before retrying if we get an error
+          let retryTimeoutLength = Math.floor(numAttempts * ((Math.random() * 25) * Math.random() * 5) * 50 + 1);
+
+          var malMoreData = await util.delay(retryTimeoutLength).then(async () => {
+            return await jikan.getAnimeDetails(element[1].malData.mal_id);
+          });
+
+          element[1].mal_additional_details = malMoreData;
+
+          numAttempts2++;
+
+          if (numAttempts2 > MAX_ATTEMPTS) {
+            console.error(`ALERT!: (additional anime details) unable to resolve error with Jikan/MAL for anime #${i} (${element[1].name})`);
+          }
+        }
+
+        // go ahead and continue processing the others.
         break;
       }
 
@@ -93,6 +139,10 @@ async function mangleSheetsData() {
       element[1].malData = malData;
 
       numAttempts++;
+
+      if (numAttempts > MAX_ATTEMPTS) {
+        console.error(`ALERT!: unable to resolve error with Jikan/MAL for anime #${i} (${element[1].name})`);
+      }
     }
 
     queueData[totalProcessed] = element;
@@ -105,7 +155,7 @@ async function mangleSheetsData() {
   totalProcessed = 0;
 
   var watchedElements = Object.entries(_watchedData);
-  console.log(`[Stage 4/5] This stage should take around ${Math.ceil((watchedElements.length * 4000 + ((Math.random() * 250) * Math.random() * 10) + 1) / 1000 / 60)} minutes`);
+  console.log(`[Stage 4/5] This stage should take at least ${Math.ceil((watchedElements.length * 4000 + ((Math.random() * 250) * Math.random() * 10) + 1) / 1000 / 60 * 2)} minutes`);
 
   // WE GO AGANE xqcS
   for (var i = 0; i < watchedElements.length; i++) {
@@ -114,20 +164,53 @@ async function mangleSheetsData() {
     let element = watchedElements[i];
 
     element[1].malData = {};
+    element[1].mal_additional_details = {};
 
     var numAttempts = 0;
 
-    while (numAttempts < MAX_ATTEMPTS) {
-       // determine if we have an axios error
-       if (element[1].malData !== undefined && element[1].malData.response !== undefined) {
+    while (numAttempts <= MAX_ATTEMPTS) {
+      // determine if we have an axios error
+      if (element[1].malData !== undefined && element[1].malData.response !== undefined) {
         console.log(`there was an error retrieving anime info, retrying again (attempt ${numAttempts}/${MAX_ATTEMPTS})...`);
       } else if (element[1].malData == undefined || !(Object.keys(element[1].malData).length === 0 && element[1].malData.constructor === Object)) {
-        // null is fine, if we can't find the anime, but undefined means we didn't get data back, and that means we need to continue on...
+        // null is fine, if we can't find the anime, but undefined means we didn't get data back, and that means we need to continue on.
+
+        // Let's go ahead and download the image since we know we have the proper data to do so...
+        await downloadAnimeArt(element[1].malData.image_url, element[1].malData.mal_id);
+
+        // and let's go ahead and also download the rest of the metadata for the anime.
+        var numAttempts2 = 0;
+
+        while (numAttempts2 <= MAX_ATTEMPTS) {
+          // determine if we have an axios error
+          if (element[1].mal_additional_details !== undefined && element[1].mal_additional_details.response !== undefined) {
+            console.log(`there was an error retrieving anime info, retrying again (attempt ${numAttempts}/${MAX_ATTEMPTS})...`);
+          } else if (element[1].mal_additional_details == undefined || !(Object.keys(element[1].mal_additional_details).length === 0 && element[1].mal_additional_details.constructor === Object)) {
+            break;
+          }
+
+          // just wait a bit longer before retrying if we get an error
+          let retryTimeoutLength = Math.floor(numAttempts * ((Math.random() * 25) * Math.random() * 5) * 50 + 1);
+
+          var malMoreData = await util.delay(retryTimeoutLength).then(async () => {
+            return await jikan.getAnimeDetails(element[1].malData.mal_id);
+          });
+
+          element[1].mal_additional_details = malMoreData;
+
+          numAttempts2++;
+
+          if (numAttempts2 > MAX_ATTEMPTS) {
+            console.error(`ALERT!: (additional anime details) unable to resolve error with Jikan/MAL for anime #${i} (${element[1].name})`);
+          }
+        }
+
+        // go ahead and continue processing the others.
         break;
       }
 
       // just wait a bit longer before retrying if we get an error
-      let retryTimeoutLength = Math.floor(numAttempts * ((Math.random() * 25) * Math.random() * 5) * 50 + 1);
+      let retryTimeoutLength = Math.floor(numAttempts * ((Math.random() * 25) * Math.random() * 5) * 69 + (numAttempts * numAttempts));
 
       var malData = await util.delay(retryTimeoutLength).then(async () => {
         return await jikan.searchForAnime(element[1].name);
@@ -136,6 +219,10 @@ async function mangleSheetsData() {
       element[1].malData = malData;
 
       numAttempts++;
+
+      if (numAttempts > MAX_ATTEMPTS) {
+        console.error(`ALERT!: unable to resolve error with Jikan/MAL for anime #${i} (${element[1].name})`);
+      }
     }
 
     watchedData[totalProcessed] = element;
@@ -145,13 +232,13 @@ async function mangleSheetsData() {
   console.log("[Stage 5/5] Persisting data...");
 
   var combinedData = {
-    ...watchedData,
-    ...queueData,
+    watched: watchedData,
+    queued: queueData
   };
 
   fs.writeFileSync("./data/db.json", JSON.stringify(combinedData));
 
-  console.log("all done! ^-^'")
+  console.log("all done! ^-^'");
 }
 
 async function start(sheetsInfo) {

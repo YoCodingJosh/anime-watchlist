@@ -56,7 +56,14 @@ async function main() {
     return;
   }
 
-  etl.start(sheetsInfo);
+  // Ensure certain paths exist.
+  if (!fs.existsSync("./data/images")) {
+    fs.mkdirSync("./data/images");
+  }
+
+  await etl.start(sheetsInfo);
+
+  console.log("ありがとうございます！");
 }
 
 // if running through node index.js - run the main method.
