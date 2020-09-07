@@ -25,21 +25,29 @@ const MAX_RESULTS = 20;
 async function searchForAnime(name) {
   let searchUrl = `${API_URL}/search/anime?q=${encodeURI(name)}&limit=${MAX_RESULTS}`;
 
-  var data;
-  await util.delay(4000).then(axios.get(searchUrl).then(function (response) {
-    var results = response.data.results;
-    for (var i = 0; i < results.length; i++) {
-      if (results[i].title == name) {
-        data = results[i];
-        return;
-      }
-    }
-    data = null;
-  }).catch(function (error) {
-    data = error;
-  }));
+  // Jikan requires that there be 4 seconds between each request, so we sleep at least 4 seconds between each request.
+  // MAL also does some sort of rate limiting for Jikan (resulting in Jikan returning a 503), so that's also why we randomize the amount to sleep between each request (so 90% it's over 4 seconds)
+  let timeoutLength = Math.ceil(3600 + ((((Math.random() * 100) % 2 == 0) ? 5 : 3) * 100) + (Math.random() * 25) + (((Math.random() * 100 % 2 != 0) ? (Math.random() * 75) : (Math.random() * 30)) * (Math.random() * 25)) + 1);
 
-  return data;
+  return await util.delay(timeoutLength).then(async () => {
+    try {
+      let res = await axios.get(searchUrl);
+
+      var results = res.data.results;
+      for (var i = 0; i < results.length; i++) {
+        if (results[i].title == name) {
+          return results[i];
+        }
+      }
+
+      console.error(`error: couldn't find the anime "${name}" ?`);
+      return undefined;
+    }
+    catch (err) {
+      console.error(`error: got error from Jikan/MAL: ${err}`);
+      return err;
+    }
+  });
 }
 
 module.exports = {
