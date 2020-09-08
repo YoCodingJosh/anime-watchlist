@@ -110,7 +110,7 @@ async function mangleSheetsData() {
           }
 
           // just wait a bit longer before retrying if we get an error
-          let retryTimeoutLength = Math.floor(numAttempts * ((Math.random() * 25) * Math.random() * 5) * 50 + 1);
+          let retryTimeoutLength = Math.floor(numAttempts * ((Math.random() * 25) * Math.random() * 5) * 69 + (numAttempts * numAttempts));
 
           var malMoreData = await util.delay(retryTimeoutLength).then(async () => {
             return await jikan.getAnimeDetails(element[1].malData.mal_id);
@@ -130,7 +130,7 @@ async function mangleSheetsData() {
       }
 
       // just wait a bit longer before retrying if we get an error
-      let retryTimeoutLength = Math.floor(numAttempts * ((Math.random() * 25) * Math.random() * 5) * 50 + 1);
+      let retryTimeoutLength = Math.floor(numAttempts * ((Math.random() * 25) * Math.random() * 5) * 69 + (numAttempts * numAttempts));
 
       var malData = await util.delay(retryTimeoutLength).then(async () => {
         return await jikan.searchForAnime(element[1].name);
@@ -190,7 +190,7 @@ async function mangleSheetsData() {
           }
 
           // just wait a bit longer before retrying if we get an error
-          let retryTimeoutLength = Math.floor(numAttempts * ((Math.random() * 25) * Math.random() * 5) * 50 + 1);
+          let retryTimeoutLength = Math.floor(numAttempts2 * ((Math.random() * 25) * Math.random() * 5) * 69 + (numAttempts2 * numAttempts2));
 
           var malMoreData = await util.delay(retryTimeoutLength).then(async () => {
             return await jikan.getAnimeDetails(element[1].malData.mal_id);
