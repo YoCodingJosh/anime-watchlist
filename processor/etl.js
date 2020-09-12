@@ -37,8 +37,24 @@ async function mangleSheetsData() {
   });
 
   console.log("[Stage 2/5] Computing deltas...");
-  // TODO: actually implement this lol
-  // my intent is not have to re-fetch info from Jikan/MAL if we don't have to (like moving anime to watched)
+  // TODO: finish implementing this lmao
+  // my intent is not have to re-fetch info from Jikan/MAL if we don't have to (like moving between pending and currently watching)
+
+  if (!fs.existsSync("./data/db.json")) {
+    console.log("*info* no existing data file found. Restarting from Zero...");
+  } else {
+    var existingData = await new Promise((resolve, reject) => {
+      fs.readFile("./private/drive.json", (err, content) => {
+        if (err) return reject(`Error reading data file: ${err}`);
+  
+        resolve(JSON.parse(content));
+      });
+    });
+
+    console.log(existingData);
+
+    return;
+  }
 
   let queueData = {};
   let watchedData = {};
@@ -91,7 +107,7 @@ async function mangleSheetsData() {
     while (numAttempts <= MAX_ATTEMPTS) {
       // determine if we have an axios error
       if (element[1].malData !== undefined && element[1].malData.response !== undefined) {
-        console.log(`there was an error retrieving anime info, retrying again (attempt ${numAttempts}/${MAX_ATTEMPTS})...`);
+        console.log(`there was an error retrieving anime info (${element[1].name}), retrying again (attempt ${numAttempts}/${MAX_ATTEMPTS})...`);
       } else if (element[1].malData == undefined || !(Object.keys(element[1].malData).length === 0 && element[1].malData.constructor === Object)) {
         // null is fine, if we can't find the anime, but undefined means we didn't get data back, and that means we need to continue on.
 
@@ -104,7 +120,7 @@ async function mangleSheetsData() {
         while (numAttempts2 <= MAX_ATTEMPTS) {
           // determine if we have an axios error
           if (element[1].mal_additional_details !== undefined && element[1].mal_additional_details.response !== undefined) {
-            console.log(`there was an error retrieving anime info, retrying again (attempt ${numAttempts}/${MAX_ATTEMPTS})...`);
+            console.log(`there was an error retrieving additional anime info (${element[1].name}), retrying again (attempt ${numAttempts2}/${MAX_ATTEMPTS})...`);
           } else if (element[1].mal_additional_details == undefined || !(Object.keys(element[1].mal_additional_details).length === 0 && element[1].mal_additional_details.constructor === Object)) {
             break;
           }
@@ -121,7 +137,7 @@ async function mangleSheetsData() {
           numAttempts2++;
 
           if (numAttempts2 > MAX_ATTEMPTS) {
-            console.error(`ALERT!: (additional anime details) unable to resolve error with Jikan/MAL for anime #${i} (${element[1].name})`);
+            console.error(`ALERT!: (additional anime details) unable to resolve error with Jikan/MAL for anime #${i + 1} (${element[1].name})`);
           }
         }
 
@@ -136,12 +152,15 @@ async function mangleSheetsData() {
         return await jikan.searchForAnime(element[1].name);
       });
 
+      // todo: only update this field when we actually get the data.
+      element[1].mal_data_last_fetched = Math.floor(+new Date() / 1000);
+
       element[1].malData = malData;
 
       numAttempts++;
 
       if (numAttempts > MAX_ATTEMPTS) {
-        console.error(`ALERT!: unable to resolve error with Jikan/MAL for anime #${i} (${element[1].name})`);
+        console.error(`ALERT!: unable to resolve error with Jikan/MAL for anime #${i + 1} (${element[1].name})`);
       }
     }
 
