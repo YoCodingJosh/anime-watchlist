@@ -111,6 +111,8 @@ async function mangleSheetsData() {
       } else if (element[1].malData == undefined || !(Object.keys(element[1].malData).length === 0 && element[1].malData.constructor === Object)) {
         // null is fine, if we can't find the anime, but undefined means we didn't get data back, and that means we need to continue on.
 
+        console.log("[Stage 3/5] Downloading anime art...");
+
         // Let's go ahead and download the image since we know we have the proper data to do so...
         await downloadAnimeArt(element[1].malData.image_url, element[1].malData.mal_id);
 
@@ -124,6 +126,8 @@ async function mangleSheetsData() {
           } else if (element[1].mal_additional_details == undefined || !(Object.keys(element[1].mal_additional_details).length === 0 && element[1].mal_additional_details.constructor === Object)) {
             break;
           }
+
+          console.log(`[Stage 3/5] Fetching more detailed anime information for ${element[1].name}`);
 
           // just wait a bit longer before retrying if we get an error
           let retryTimeoutLength = Math.floor(numAttempts * ((Math.random() * 25) * Math.random() * 5) * 69 + (numAttempts * numAttempts));
@@ -153,7 +157,7 @@ async function mangleSheetsData() {
       });
 
       // todo: only update this field when we actually get the data.
-      element[1].mal_data_last_fetched = Math.floor(+new Date() / 1000);
+      element[1].mal_data_last_fetched = Math.floor(new Date() / 1000);
 
       element[1].malData = malData;
 
@@ -194,16 +198,20 @@ async function mangleSheetsData() {
       } else if (element[1].malData == undefined || !(Object.keys(element[1].malData).length === 0 && element[1].malData.constructor === Object)) {
         // null is fine, if we can't find the anime, but undefined means we didn't get data back, and that means we need to continue on.
 
+        console.log("[Stage 4/5] Downloading anime art...");
+
         // Let's go ahead and download the image since we know we have the proper data to do so...
         await downloadAnimeArt(element[1].malData.image_url, element[1].malData.mal_id);
 
         // and let's go ahead and also download the rest of the metadata for the anime.
         var numAttempts2 = 0;
 
+        console.log(`[Stage 4/5] Fetching more detailed anime information for ${element[1].name}`);
+
         while (numAttempts2 <= MAX_ATTEMPTS) {
           // determine if we have an axios error
           if (element[1].mal_additional_details !== undefined && element[1].mal_additional_details.response !== undefined) {
-            console.log(`there was an error retrieving anime info, retrying again (attempt ${numAttempts}/${MAX_ATTEMPTS})...`);
+            console.log(`there was an error retrieving anime info, retrying again (attempt ${numAttempts2}/${MAX_ATTEMPTS})...`);
           } else if (element[1].mal_additional_details == undefined || !(Object.keys(element[1].mal_additional_details).length === 0 && element[1].mal_additional_details.constructor === Object)) {
             break;
           }
@@ -216,11 +224,14 @@ async function mangleSheetsData() {
           });
 
           element[1].mal_additional_details = malMoreData;
+          
+          // todo: only update this field when we actually get the data.
+          element[1].mal_data_last_fetched = Math.floor(new Date() / 1000);
 
           numAttempts2++;
 
           if (numAttempts2 > MAX_ATTEMPTS) {
-            console.error(`ALERT!: (additional anime details) unable to resolve error with Jikan/MAL for anime #${i} (${element[1].name})`);
+            console.error(`ALERT!: (additional anime details) unable to resolve error with Jikan/MAL for anime #${i + 1} (${element[1].name})`);
           }
         }
 
@@ -240,7 +251,7 @@ async function mangleSheetsData() {
       numAttempts++;
 
       if (numAttempts > MAX_ATTEMPTS) {
-        console.error(`ALERT!: unable to resolve error with Jikan/MAL for anime #${i} (${element[1].name})`);
+        console.error(`ALERT!: unable to resolve error with Jikan/MAL for anime #${i + 1} (${element[1].name})`);
       }
     }
 
