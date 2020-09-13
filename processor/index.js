@@ -61,7 +61,11 @@ async function main() {
     fs.mkdirSync("./data/images");
   }
 
-  await etl.start(sheetsInfo);
+  try {
+    await etl.start(sheetsInfo);
+  } catch(err) {
+    console.error(err);
+  }  
 
   console.log("ありがとうございます！");
 }

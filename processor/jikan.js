@@ -31,6 +31,10 @@ async function searchForAnime(name) {
       let res = await axios.get(searchUrl);
 
       // Search through the results (because sometimes the anime doesn't show up first)
+      if (res.data.results === undefined) {
+        throw new Error(`Got garbage from Jikan/MAL: ${res.data}`);
+      }
+
       var results = res.data.results;
       for (var i = 0; i < results.length; i++) {
         if (results[i].title == name) {

@@ -44,14 +44,14 @@ async function mangleSheetsData() {
     console.log("*info* no existing data file found. Restarting from Zero...");
   } else {
     var existingData = await new Promise((resolve, reject) => {
-      fs.readFile("./private/drive.json", (err, content) => {
+      fs.readFile("./data/db.json", (err, content) => {
         if (err) return reject(`Error reading data file: ${err}`);
   
         resolve(JSON.parse(content));
       });
     });
 
-    console.log(existingData);
+    // TODO:
 
     return;
   }
@@ -130,7 +130,7 @@ async function mangleSheetsData() {
           console.log(`[Stage 3/5] Fetching more detailed anime information for ${element[1].name}`);
 
           // just wait a bit longer before retrying if we get an error
-          let retryTimeoutLength = Math.floor(numAttempts * ((Math.random() * 25) * Math.random() * 5) * 69 + (numAttempts * numAttempts));
+          let retryTimeoutLength = Math.floor(numAttempts2 * ((Math.random() * 25) * Math.random() * 5) * 69 + (numAttempts2 * numAttempts2));
 
           var malMoreData = await util.delay(retryTimeoutLength).then(async () => {
             return await jikan.getAnimeDetails(element[1].malData.mal_id);
