@@ -22,7 +22,7 @@ let getTimeoutDuration = () => Math.ceil(3400 + ((((Math.random() * 100) % 2 == 
  * 
  * @param {string} name - Hepburnized name for the anime (or the bold top text on the MAL listing, which is typically the Hepburnized name)
  * @returns {Object} the data object with the specified anime details
- * @returns {undeifned} if the anime couldn't be found, undefined will be returned
+ * @returns {undefined} if the anime couldn't be found, undefined will be returned
  * @returns {Object} if an error occurred that prevented the call to complete normally, the error will be returned.
  */
 async function searchForAnime(name) {
