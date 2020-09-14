@@ -9,7 +9,9 @@ const axios = require('axios').default;
 
 const DATA_FILE_PATH = "./data/anime_db.json";
 
-let sheetMetadata = {}
+let sheetMetadata = {};
+
+let isUpdate = false;
 
 // the raw spreadsheet data
 let _queueData = {};
@@ -46,7 +48,7 @@ async function computeDeltas() {
     console.log("[Stage 2/5] No existing data file found. Restarting from Zero...");
   } else {
     var existingData = await new Promise((resolve, reject) => {
-      fs.readFile("./data/db.json", (err, content) => {
+      fs.readFile(DATA_FILE_PATH, (err, content) => {
         if (err) return reject(`Error reading data file: ${err}`);
 
         resolve(JSON.parse(content));
@@ -55,7 +57,15 @@ async function computeDeltas() {
 
     // TODO: finish implementing this :^)
 
-    return;
+
+    for (var i = 0; i < _queueData.length; i++) {
+      // Skip if it's labeled rewatch.
+      if (_queueData[i].lastepisodewatched == "REWATCH") continue;
+
+      //console.log(_queueData[i]);
+    }
+
+    isUpdate = true;
   }
 }
 
@@ -319,11 +329,20 @@ async function processWatched() {
 async function persistData() {
   console.log("[Stage 5/5] Persisting data...");
 
-  var combinedData = {
+  var timestamp = {
     generated_on: Math.floor(new Date() / 1000),
+    last_updated_on: Math.floor(new Date() / 1000)
+  };
+
+  var combinedData = {
+    timestamp,
     watched: watchedData,
     queued: queueData
   };
+
+  if (fs.existsSync(DATA_FILE_PATH)) {
+    // TODO: Merge updated with existing.
+  }
 
   fs.writeFileSync(DATA_FILE_PATH, JSON.stringify(combinedData));
 
