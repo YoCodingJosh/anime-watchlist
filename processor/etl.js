@@ -102,6 +102,7 @@ async function processQueue() {
 
     // We're not counting rewatch, since I use that internally as a reminder.
     if (element.lastepisodewatched == "REWATCH") {
+      console.log(`[Stage 3/5] Skipping ${i + 1} because it is labeled as REWATCH.`);
       delete element;
       continue;
     }
