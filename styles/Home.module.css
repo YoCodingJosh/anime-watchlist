@@ -25,14 +25,12 @@
   align-items: center;
 }
 
-.footer img {
-  margin-left: 0.5rem;
+.footer_text {
+  text-align: center;
 }
 
-.footer a {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.footer img {
+  margin-left: 0.5rem;
 }
 
 .title a {
@@ -49,7 +47,7 @@
 .title {
   margin: 0;
   line-height: 1.15;
-  font-size: 4rem;
+  font-size: 2rem;
 }
 
 .title,

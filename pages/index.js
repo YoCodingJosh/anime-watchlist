@@ -11,13 +11,8 @@ export default function Home() {
 
       <main className={styles.main}>
         <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
+          CodingJosh's Anime Watchlist
         </h1>
-
-        <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.js</code>
-        </p>
 
         <div className={styles.grid}>
           <a href="https://nextjs.org/docs" className={styles.card}>
@@ -51,14 +46,11 @@ export default function Home() {
       </main>
 
       <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel Logo" className={styles.logo} />
-        </a>
+        <p className={styles.footer_text}>
+          Copyright &copy; { new Date().getFullYear() } CodingJosh
+          <br/>
+          Powered by <a href="https://myanimelist.net" target="_blank">MyAnimeList.net</a> / < a href="https://jikan.moe" target="_blank">Jikan.moe</a>
+        </p>
       </footer>
     </div>
   )
