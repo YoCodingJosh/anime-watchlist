@@ -147,6 +147,7 @@ async function processQueue() {
 
       if (malData == undefined) {
         console.error("[Stage 3/5] Couldn't find anime. Make sure anime is spelled correctly according to MAL!");
+        element.mal_data = undefined; // short-circuit the logic so we can skip additional processing
         break;
       } else if (malData instanceof Error) { // Axios uses standard ES5 Error object.
         console.warn(`[Stage 3/5] There was an error retrieving anime info (${element.name}), retrying again (attempt ${numAttempts}/${MAX_ATTEMPTS})...`);
@@ -188,6 +189,8 @@ async function processQueue() {
 
     // Fetch the additional anime details.
     while (numAttempts <= MAX_ATTEMPTS) {
+      numAttempts++;
+      
       // Wait between retries to see if Jikan's cache expires or the error resolves itself lmao.
       let retryTimeoutLength = Math.floor(numAttempts * ((Math.random() * 25) * Math.random() * 5) * 69 + (numAttempts * numAttempts));
 
@@ -257,6 +260,7 @@ async function processWatched() {
 
       if (malData == undefined) {
         console.error("[Stage 4/5] Couldn't find anime. Make sure anime is spelled correctly according to MAL!");
+        element.mal_data = undefined;
         break;
       } else if (malData instanceof Error) { // Axios uses standard ES5 Error object.
         console.warn(`[Stage 4/5] There was an error retrieving anime info (${element.name}), retrying again (attempt ${numAttempts}/${MAX_ATTEMPTS})...`);
@@ -297,6 +301,8 @@ async function processWatched() {
 
     // Fetch the additional anime details.
     while (numAttempts <= MAX_ATTEMPTS) {
+      numAttempts++;
+      
       // Wait between retries to see if Jikan's cache expires or the error resolves itself lmao.
       let retryTimeoutLength = Math.floor(numAttempts * ((Math.random() * 25) * Math.random() * 5) * 69 + (numAttempts * numAttempts));
 
