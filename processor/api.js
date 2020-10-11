@@ -1,8 +1,9 @@
 // api to easily access the data from anime_db.json
 
 const fs = require('fs');
+var path = require("path");
 
-const DATA_FILE_PATH = "./data/anime_db.json";
+const DATA_FILE_PATH = path.resolve("./processor/data/anime_db.json");
 
 async function getCurrentlyQueuedAnime() {
   return await new Promise((resolve, reject) => {
@@ -45,7 +46,7 @@ async function getAnimeDetails(malId) {
       for (let i = 0; i < watchedEntries.length; i++) {
         var element = watchedEntries[i][1];
 
-        if (element.mal_data.mal_id === malId) {
+        if (element.mal_data.mal_id === parseInt(malId)) {
           resolve(element);
         }
       }
@@ -53,12 +54,13 @@ async function getAnimeDetails(malId) {
       for (let i = 0; i < queuedEntries.length; i++) {
         var element = queuedEntries[i][1];
 
-        if (element.mal_data.mal_id === malId) {
+        if (element.mal_data.mal_id === parseInt(malId)) {
           resolve(element);
         }
       }
 
-      reject(`Unable to find MAL ID: ${malId}`);
+      // console.error(`Unable to find MAL ID: ${malId}`);
+      resolve(undefined);
     });
   });
 }
@@ -86,7 +88,6 @@ async function test() {
 
   // should find it in the watched list (10/10 would recommend watching)
   let konosuba = await getAnimeDetails(30831);
-  console.log(konosuba);
 }
 
 // if running through node api.js - run the test method.
