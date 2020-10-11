@@ -4,15 +4,12 @@ const drive = require('drive-db');
 const jikan = require('./jikan');
 
 const util = require('./util');
-const { exit } = require('process');
 
 const axios = require('axios').default;
 
 const DATA_FILE_PATH = "./data/anime_db.json";
 
 let sheetMetadata = {};
-
-let isUpdate = false;
 
 // the raw spreadsheet data
 let _queueData = {};
@@ -27,7 +24,7 @@ const MAX_ATTEMPTS = 5;
 
 // Download the spreadsheet data from Google Sheets and converts to JSON.
 async function downloadSheetsData() {
-  console.log("[Stage 1/5] Downloading spreadsheet data...");
+  console.log("[Stage 1/4] Downloading spreadsheet data...");
 
   _queueData = await drive({
     sheet: sheetMetadata.sheet,
@@ -66,14 +63,14 @@ async function processQueue() {
 
   var estimatedTimeToComplete = Math.ceil((queueElements.length * 4100 + (2 * (Math.random() * 250) * Math.random() * 10) + 1) / 1000 / 60 * 2);
 
-  console.log(`[Stage 3/5] Processing watch queue... (may take around ${estimatedTimeToComplete} minutes)`);
+  console.log(`[Stage 2/4] Processing watch queue... (may take around ${estimatedTimeToComplete} minutes)`);
 
   for (var i = 0; i < queueElements.length; i++) {
     let element = queueElements[i][1];
 
     // We're not counting rewatch, since I use that internally as a reminder.
     if (element.lastepisodewatched == "REWATCH") {
-      console.log(`[Stage 3/5] Skipping ${i + 1} because it is labeled as REWATCH.`);
+      console.log(`[Stage 2/4] Skipping ${i + 1} because it is labeled as REWATCH.`);
       delete element;
       continue;
     }
@@ -96,7 +93,7 @@ async function processQueue() {
       numTodo++;
     }
 
-    console.log(`[Stage 3/5] Processing queued anime (${element.name}) ${i + 1}/${queueElements.length}... ${util.round(((i + 1) / queueElements.length) * 100.0, 1)}%`);
+    console.log(`[Stage 2/4] Processing queued anime (${element.name}) ${i + 1}/${queueElements.length}... ${util.round(((i + 1) / queueElements.length) * 100.0, 1)}%`);
 
     // Initialize to empty.
     element.mal_data = {};
@@ -117,11 +114,11 @@ async function processQueue() {
       });
 
       if (malData == undefined) {
-        console.error("[Stage 3/5] Couldn't find anime. Make sure anime is spelled correctly according to MAL!");
+        console.error("[Stage 2/4] Couldn't find anime. Make sure anime is spelled correctly according to MAL!");
         element.mal_data = undefined; // short-circuit the logic so we can skip additional processing
         break;
       } else if (malData instanceof Error) { // Axios uses standard ES5 Error object.
-        console.warn(`[Stage 3/5] There was an error retrieving anime info (${element.name}), retrying again (attempt ${numAttempts}/${MAX_ATTEMPTS})...`);
+        console.warn(`[Stage 2/4] There was an error retrieving anime info (${element.name}), retrying again (attempt ${numAttempts}/${MAX_ATTEMPTS})...`);
 
         numAttempts++;
 
@@ -148,7 +145,7 @@ async function processQueue() {
       continue;
     }
 
-    console.log("[Stage 3/5] Downloading anime art...");
+    console.log("[Stage 2/4] Downloading anime art...");
 
     // Download anime art/thumbnail/poster from MAL.
     await downloadAnimeArt(element.mal_data.image_url, element.mal_data.mal_id);
@@ -156,7 +153,7 @@ async function processQueue() {
     // Reset attempt counter.
     numAttempts = 0;
 
-    console.log(`[Stage 3/5] Fetching more detailed anime information for ${element.name}`);
+    console.log(`[Stage 2/4] Fetching more detailed anime information for ${element.name}`);
 
     // Fetch the additional anime details.
     while (numAttempts <= MAX_ATTEMPTS) {
@@ -170,7 +167,7 @@ async function processQueue() {
       });
 
       if (malMoreData instanceof Error) {
-        console.warn(`[Stage 3/5] There was an error retrieving additional anime details (${element.name}), retrying again (attempt ${numAttempts}/${MAX_ATTEMPTS})...`);
+        console.warn(`[Stage 2/4] There was an error retrieving additional anime details (${element.name}), retrying again (attempt ${numAttempts}/${MAX_ATTEMPTS})...`);
 
         if (numAttempts >= MAX_ATTEMPTS) {
           console.error(`ALERT!: (additional anime details) unable to resolve error with Jikan/MAL for anime #${i + 1} (${element.name})`);
@@ -204,14 +201,14 @@ async function processWatched() {
 
   var estimatedTimeToComplete = Math.ceil((watchedElements.length * 4100 + (2 * (Math.random() * 250) * Math.random() * 10) + 1) / 1000 / 60 * 2);
 
-  console.log(`[Stage 4/5] Processing watched list data... (may take around ${estimatedTimeToComplete} minutes)`);
+  console.log(`[Stage 3/4] Processing watched list data... (may take around ${estimatedTimeToComplete} minutes)`);
 
   var totalProcessed = 0;
 
   for (var i = 0; i < watchedElements.length; i++) {
     let element = watchedElements[i][1];
 
-    console.log(`[Stage 4/5] Processing watched anime (${element.name}) ${i + 1}/${watchedElements.length}... ${util.round(((i + 1) / watchedElements.length) * 100.0, 1)}%`);
+    console.log(`[Stage 3/4] Processing watched anime (${element.name}) ${i + 1}/${watchedElements.length}... ${util.round(((i + 1) / watchedElements.length) * 100.0, 1)}%`);
 
     // Initialize to empty.
     element.mal_data = {};
@@ -230,11 +227,11 @@ async function processWatched() {
       });
 
       if (malData == undefined) {
-        console.error("[Stage 4/5] Couldn't find anime. Make sure anime is spelled correctly according to MAL!");
+        console.error("[Stage 3/4] Couldn't find anime. Make sure anime is spelled correctly according to MAL!");
         element.mal_data = undefined;
         break;
       } else if (malData instanceof Error) { // Axios uses standard ES5 Error object.
-        console.warn(`[Stage 4/5] There was an error retrieving anime info (${element.name}), retrying again (attempt ${numAttempts}/${MAX_ATTEMPTS})...`);
+        console.warn(`[Stage 3/4] There was an error retrieving anime info (${element.name}), retrying again (attempt ${numAttempts}/${MAX_ATTEMPTS})...`);
 
         numAttempts++;
 
@@ -260,7 +257,7 @@ async function processWatched() {
       continue;
     }
 
-    console.log("[Stage 4/5] Downloading anime art...");
+    console.log("[Stage 3/4] Downloading anime art...");
 
     // Download anime art/thumbnail/poster from MAL.
     await downloadAnimeArt(element.mal_data.image_url, element.mal_data.mal_id);
@@ -268,7 +265,7 @@ async function processWatched() {
     // Reset attempt counter.
     numAttempts = 0;
 
-    console.log(`[Stage 4/5] Fetching more detailed anime information for ${element.name}`);
+    console.log(`[Stage 3/4] Fetching more detailed anime information for ${element.name}`);
 
     // Fetch the additional anime details.
     while (numAttempts <= MAX_ATTEMPTS) {
@@ -282,7 +279,7 @@ async function processWatched() {
       });
 
       if (malMoreData instanceof Error) {
-        console.warn(`[Stage 4/5] There was an error retrieving additional anime details (${element.name}), retrying again (attempt ${numAttempts}/${MAX_ATTEMPTS})...`);
+        console.warn(`[Stage 3/4] There was an error retrieving additional anime details (${element.name}), retrying again (attempt ${numAttempts}/${MAX_ATTEMPTS})...`);
 
         if (numAttempts >= MAX_ATTEMPTS) {
           console.error(`ALERT!: (additional anime details) unable to resolve error with Jikan/MAL for anime #${i + 1} (${element.name})`);
@@ -305,7 +302,7 @@ async function processWatched() {
 }
 
 async function persistData() {
-  console.log("[Stage 5/5] Persisting data...");
+  console.log("[Stage 4/4] Persisting data...");
 
   var timestamp = {
     generated_on: Math.floor(new Date() / 1000),
@@ -324,7 +321,7 @@ async function persistData() {
 
   fs.writeFileSync(DATA_FILE_PATH, JSON.stringify(combinedData));
 
-  // TODO: Upload to Amazon S3
+  // TODO: Possibly upload to Amazon S3
 }
 
 async function start(sheetsInfo) {
@@ -334,7 +331,7 @@ async function start(sheetsInfo) {
   await downloadSheetsData();
 
   // Process any differences between the current document and the last processed document.
-  await computeDeltas();
+  // await computeDeltas();
 
   // Process the watching/todo queue.
   await processQueue();

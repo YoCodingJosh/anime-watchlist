@@ -1,5 +1,15 @@
+// Some code that's not quite fit for the main code :)
+
+const fs = require('fs');
+
+const { exit } = require('process');
+
 const ONE_WEEK_IN_SECONDS = 604800;
 const TWO_WEEKS_IN_SECONDS = 2 * ONE_WEEK_IN_SECONDS;
+
+const DATA_FILE_PATH = "./data/anime_db.json";
+
+let isUpdate = false;
 
 // Compute any deltas between the existing data file and the fresh spreadsheet data.
 // This way here, we only need to fetch data from Jikan/MAL when we need it.
@@ -70,3 +80,8 @@ async function computeDeltas() {
     exit(0); // <-- REMOVE ME
   }
 }
+
+// export as a separate experimental module
+module.exports = {
+  __EXPERIMENTAL_computeDeltas: computeDeltas
+};
