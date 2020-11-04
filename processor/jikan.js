@@ -12,7 +12,7 @@ const util = require('./util');
 const API_URL = "https://api.jikan.moe/v3";
 
 // Jikan's default results size is too much for me.
-const MAX_RESULTS = 10;
+const MAX_RESULTS = 5;
 
 /** @returns {number} returns a whole number that represents the amount to timeout between API requests */
 let getTimeoutDuration = () => Math.ceil(3400 + ((((Math.random() * 100) % 2 == 0) ? 5 : 3) * 100) + (Math.random() * 25) + (((Math.random() * 100 % 2 != 0) ? (Math.random() * 75) : (Math.random() * 30)) * (Math.random() * 25)) + 1);

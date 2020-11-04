@@ -1,7 +1,7 @@
 const api = require('../../../processor/api');
 
 // test endpoint
-async function handler (req, res) {
+export default async function handler(req, res) {
   const {
     query: { animeId },
   } = req;
@@ -16,5 +16,3 @@ async function handler (req, res) {
 
   res.json(data == undefined ? {} : data);
 };
-
-export default handler;
